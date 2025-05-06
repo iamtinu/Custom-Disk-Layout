@@ -1,0 +1,31 @@
+d-i preseed/early_command string umount /media || true
+d-i partman-auto/method string regular
+
+d-i partman-auto/expert_recipe string with-swap-option :: \
+    512 512 512 fat32 \
+        $primary{ } $bootable{ } method{ efi } format{ } \
+        use_filesystem{ } filesystem{ vfat } mountpoint{ /boot/efi } \
+    . \
+    1024 1024 1024 ext4 \
+        $primary{ } method{ format } format{ } \
+        use_filesystem{ } filesystem{ ext4 } mountpoint{ /boot } \
+    . \
+    8192 8192 8192 linux-swap \
+        $primary{ } method{ swap } format{ } \
+    . \
+    10000 10000 -1 ext4 \
+        $primary{ } method{ format } format{ } \
+        use_filesystem{ } filesystem{ ext4 } mountpoint{ / } \
+    .
+
+d-i partman-auto/expert_recipe_choice string with-swap-option
+
+d-i partman-auto/disk string /dev/nvme2n1
+d-i partman-partitioning/choose_label string gpt
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman-partitioning/force_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+bootloader --location=partition --boot-drive=nvme2n1 --efi-directory=/boot/efi
