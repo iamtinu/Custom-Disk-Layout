@@ -1,0 +1,18 @@
+clearpart --all --initlabel
+zerombr
+bootloader --location=mbr --boot-drive=sda
+
+part /boot/efi --fstype="vfat" --size=200 --ondisk=sda
+
+part /boot --fstype="ext4" --size=500 --ondisk=sda
+
+part swap --size=2048 --ondisk=sda
+
+part raid.01 --size=10240 --ondisk=sda
+part raid.02 --size=10240 --ondisk=sdb
+part raid.03 --size=10240 --ondisk=sdc
+part raid.04 --grow --ondisk=sda
+part raid.05 --grow --ondisk=sdb
+part raid.06 --grow --ondisk=sdc
+
+raid / --fstype="ext4" --level=5 --device=md0 raid.04 raid.05 raid.06
