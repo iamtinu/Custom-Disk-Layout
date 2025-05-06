@@ -1,0 +1,43 @@
+d-i preseed/early_command string \
+  sleep 5; \
+  wipefs -a /dev/nvme0n1 || true; \
+  wipefs -a /dev/nvme1n1 || true
+
+d-i partman-auto/disk string /dev/nvme0n1 /dev/nvme1n1
+d-i partman-auto/method string raid
+
+d-i partman-auto/expert_recipe string multi_raid :: \
+      256 512 512 free \
+          $primary{ } $bootable{ } method{ efi } format{ } \
+          use_filesystem{ } filesystem{ vfat } mountpoint{ /boot/efi } \
+      . \
+      1024 1024 1024 free \
+          $primary{ } method{ swap } format{ } \
+      . \
+      10000 10000 -1 raid \
+          $primary{ } method{ raid } format{ } \
+      .
+
+d-i partman-auto-raid/recipe string \
+      0 2 0 ext4 / \
+          /dev/nvme0n1p3#/dev/nvme1n1p3 .
+
+d-i partman/confirm_write_new_label boolean true
+d-i partman/confirm_new_label boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/confirm boolean true
+d-i partman/confirm_nochanges boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/force_partitioning boolean true
+
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean false
+d-i grub-installer/bootdev string /dev/nvme0n1,/dev/nvme1n1
+
+d-i partman-md/device_remove_md boolean true
+d-i partman-md/confirm boolean true
+d-i partman-partitioning/confirm_write_changes boolean true
+d-i partman/confirm boolean true
