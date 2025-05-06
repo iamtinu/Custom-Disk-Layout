@@ -1,0 +1,21 @@
+storage:
+    layout:
+      name: custom
+      device: /dev/nvme0n1
+      recipe:
+        - name: efi
+          type: partition
+          filesystem: fat32
+          size: 512MB
+          flags: [boot]
+          mountpoint: /boot/efi
+        - name: boot
+          type: partition
+          filesystem: ext4
+          size: 1GB
+          mountpoint: /boot
+        - name: root
+          type: partition
+          filesystem: ext4
+          size: max
+          mountpoint: /
