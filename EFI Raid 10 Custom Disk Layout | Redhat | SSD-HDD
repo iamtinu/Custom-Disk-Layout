@@ -1,0 +1,21 @@
+clearpart --all --initlabel --drives=sda,sdb,sdc,sdd --disklabel=gpt
+
+zerombr
+
+bootloader --location=partition --boot-drive=sda --append="rhgb quiet"
+
+part raid.01 --size=200 --ondisk=sda --fstype=efi
+part raid.02 --size=200 --ondisk=sdb --fstype=efi
+raid /boot/efi --fstype="efi" --level=1 --device=md0 raid.01 raid.02
+
+part raid.03 --size=1024 --ondisk=sda
+part raid.04 --size=1024 --ondisk=sdb
+part raid.05 --size=1024 --ondisk=sdc
+part raid.06 --size=1024 --ondisk=sdd
+raid /boot --fstype="ext4" --level=10 --device=md1 raid.03 raid.04 raid.05 raid.06 --chunksize=64
+
+part raid.07 --size=20480 --ondisk=sda
+part raid.08 --size=20480 --ondisk=sdb
+part raid.09 --size=20480 --ondisk=sdc
+part raid.10 --size=20480 --ondisk=sdd
+raid / --fstype="ext4" --level=10 --device=md2 raid.07 raid.08 raid.09 raid.10 --chunksize=64
